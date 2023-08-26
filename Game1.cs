@@ -1,12 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGameSprite.sprite;
 
 namespace MonoGameSprite;
 
 public class Game1 : Game {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+
+    private SonicAnimation _sonicAnimation;
+    private Rectangle _destinationRectangle;
 
     public Game1() {
         _graphics = new GraphicsDeviceManager(this);
@@ -15,15 +19,16 @@ public class Game1 : Game {
     }
 
     protected override void Initialize() {
-        // TODO: Add your initialization logic here
+        _sonicAnimation = new SonicAnimation();
+        _destinationRectangle = new Rectangle(100, 100, 48 * 4, 48 * 4);
 
         base.Initialize();
     }
 
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
+        
+        _sonicAnimation.loadContent(Content);
     }
 
     protected override void Update(GameTime gameTime) {
@@ -31,15 +36,21 @@ public class Game1 : Game {
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
+        if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+            _sonicAnimation.replay();
+        }
+
+        _sonicAnimation.update();
 
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime) {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Gray);
 
-        // TODO: Add your drawing code here
+        _spriteBatch.Begin(samplerState: SamplerState.PointWrap);
+        _sonicAnimation.draw(_spriteBatch, _destinationRectangle);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
