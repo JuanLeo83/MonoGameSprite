@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace MonoGameSprite.sprite.animation;
 
-public class Animation {
+public class Animation : IAnimation {
     private readonly List<AnimationFrame> _frames = new();
     private int _animationAge;
     private int _lifespan = -1;
@@ -12,7 +12,7 @@ public class Animation {
     private readonly int _loopTimes;
     private int _repeatLoopCounter;
 
-    public int Lifespan {
+    private int Lifespan {
         get {
             if (_lifespan >= 0) return _lifespan;
 
@@ -61,6 +61,8 @@ public class Animation {
     }
 
     public void update() {
+        if (HasFinished) return;
+        
         _animationAge++;
 
         switch (_isLoop) {
@@ -73,6 +75,10 @@ public class Animation {
                 break;
         }
     }
+
+    public bool hasFinished() => HasFinished;
+
+    public Rectangle getSourceRectangle() => CurrentFrame.SourceRectangle;
 
     public void reset() {
         _animationAge = 0;

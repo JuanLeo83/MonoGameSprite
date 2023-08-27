@@ -40,6 +40,14 @@ public class Game1 : Game {
             _sonicAnimation.replay();
         }
 
+        if (Keyboard.GetState().IsKeyDown(Keys.Up)) {
+            _sonicAnimation.playLookUp();
+        }
+
+        if (Keyboard.GetState().IsKeyUp(Keys.Up)) {
+            _sonicAnimation.playIdle();
+        }
+
         _sonicAnimation.update();
 
         base.Update(gameTime);

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 
 namespace MonoGameSprite.sprite.animation;
 
-public class ComposedAnimation {
+public class ComposedAnimation : IAnimation {
     private readonly List<Animation> _animations = new();
     private int _currentAnimation;
     private int _loopTimes;
@@ -45,11 +46,17 @@ public class ComposedAnimation {
         }
     }
 
+    public bool hasFinished() {
+        return CurrentAnimation == _animations.Last() &&
+               CurrentAnimation.HasFinished;
+    }
+
     public void reset() {
         CurrentAnimation.reset();
         _currentAnimation = 0;
         _repeatLoopCounter = 0;
+        CurrentAnimation = _animations[_currentAnimation];
     }
 
-    public Rectangle SourceRectangle => CurrentAnimation.CurrentFrame.SourceRectangle;
+    public Rectangle getSourceRectangle() => CurrentAnimation.CurrentFrame.SourceRectangle;
 }

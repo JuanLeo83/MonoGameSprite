@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameSprite.sprite.animation;
@@ -8,29 +10,24 @@ namespace MonoGameSprite.sprite;
 public class SonicAnimation {
     private Texture2D _texture;
 
-    private readonly ComposedAnimation _idle = new();
-    private readonly ComposedAnimation _bored = new(2);
+    private readonly ComposedAnimation _idle = new(2);
+    private readonly ComposedAnimation _lookUp = new();
+    private readonly Animation _lookDown = new(false);
 
-    private ComposedAnimation _currentAnimation;
+    private IAnimation _currentAnimation;
 
     private void initIdleAnimation() {
         Animation idleAnimation = new(false);
-        idleAnimation.addFrame(setRectangle(0, 0), 60);
+        idleAnimation.addFrame(setRectangle(0, 0), 60 * 3);
         _idle.addAnimation(idleAnimation);
-    }
 
-    private void initBored1Animation() {
-        Animation idleAnimation = new(false);
-        idleAnimation.addFrame(setRectangle(0, 0), 120);
-        _bored.addAnimation(idleAnimation);
-        
         Animation bored1 = new(false);
         bored1.addFrame(setRectangle(1, 0), 5);
         bored1.addFrame(setRectangle(2, 0), 5);
         bored1.addFrame(setRectangle(3, 0), 5);
         bored1.addFrame(setRectangle(4, 0), 5);
         bored1.addFrame(setRectangle(5, 0), 5);
-        _bored.addAnimation(bored1);
+        _idle.addAnimation(bored1);
 
         Animation bored1Loop = new(false, 12);
         bored1Loop.addFrame(setRectangle(6, 0), 5);
@@ -38,21 +35,99 @@ public class SonicAnimation {
         bored1Loop.addFrame(setRectangle(8, 0), 5);
         bored1Loop.addFrame(setRectangle(9, 0), 5);
         bored1Loop.addFrame(setRectangle(10, 0), 5);
-        _bored.addAnimation(bored1Loop);
-        _bored.addAnimation(bored1.ReverseAnimation);
+        _idle.addAnimation(bored1Loop);
+
+        Animation bored2 = new(false);
+        bored2.addFrame(setRectangle(11, 0), 5);
+        bored2.addFrame(setRectangle(12, 0), 5);
+        bored2.addFrame(setRectangle(13, 0), 5);
+        bored2.addFrame(setRectangle(14, 0), 5);
+        bored2.addFrame(setRectangle(15, 0), 5);
+        bored2.addFrame(setRectangle(16, 0), 5);
+        bored2.addFrame(setRectangle(0, 1), 5);
+        bored2.addFrame(setRectangle(1, 1), 5);
+        _idle.addAnimation(bored2);
+
+        Animation bored2Loop = new(false, 4);
+        bored2Loop.addFrame(setRectangle(2, 1), 5);
+        bored2Loop.addFrame(setRectangle(3, 1), 5);
+        bored2Loop.addFrame(setRectangle(4, 1), 5);
+        bored2Loop.addFrame(setRectangle(5, 1), 5);
+        bored2Loop.addFrame(setRectangle(6, 1), 5);
+        bored2Loop.addFrame(setRectangle(7, 1), 5);
+        bored2Loop.addFrame(setRectangle(8, 1), 5);
+        _idle.addAnimation(bored2Loop);
+
+        Animation boredEnd = new(false);
+        boredEnd.addFrame(setRectangle(9, 1), 5);
+        boredEnd.addFrame(setRectangle(10, 1), 5);
+        boredEnd.addFrame(setRectangle(11, 1), 5);
+        boredEnd.addFrame(setRectangle(12, 1), 15);
+        _idle.addAnimation(boredEnd);
+
+        _idle.addAnimation(bored1.ReverseAnimation);
+    }
+
+    private void initLookUpAnimation() {
+        Animation idleAnimation = new(false);
+        idleAnimation.addFrame(setRectangle(0, 0), 5);
+        _lookUp.addAnimation(idleAnimation);
+
+        Animation first = new(false);
+        first.addFrame(setRectangle(13, 1), 5);
+        first.addFrame(setRectangle(14, 1), 5);
+        first.addFrame(setRectangle(15, 1), 5);
+        _lookUp.addAnimation(first);
+
+        Animation last = new(true);
+        last.addFrame(setRectangle(16, 1), 5);
+        last.addFrame(setRectangle(17, 1), 60 * 5);
+        _lookUp.addAnimation(last);
+    }
+
+    private void initLookDown() {
+        _lookDown.addFrame(setRectangle(18, 1), 5);
+        _lookDown.addFrame(setRectangle(19, 1), 5);
     }
 
     public void loadContent(ContentManager contentManager) {
         _texture = contentManager.Load<Texture2D>("sprites/sonic");
 
         initIdleAnimation();
-        initBored1Animation();
+        initLookUpAnimation();
+        initLookDown();
 
-        _currentAnimation = _bored;
+        _currentAnimation = _idle;
     }
 
     public void replay() {
         _currentAnimation.reset();
+    }
+
+    public void playIdle() {
+        try {
+            if (_currentAnimation == _lookUp || (_currentAnimation == _lookDown && !_currentAnimation.hasFinished())) {
+                playAnimation(_lookDown);
+            }
+            else {
+                playAnimation(_idle);
+            }
+        }
+        catch (Exception e) {
+            Debug.WriteLine(e);
+        }
+    }
+
+    public void playLookUp() {
+        playAnimation(_lookUp);
+    }
+
+    private void playAnimation(IAnimation animation) {
+        if (_currentAnimation != null && _currentAnimation != animation) {
+            _currentAnimation.reset();
+        }
+
+        _currentAnimation = animation;
     }
 
     public void update() {
@@ -60,7 +135,7 @@ public class SonicAnimation {
     }
 
     public void draw(SpriteBatch spriteBatch, Rectangle destinationRectangle) {
-        spriteBatch.Draw(_texture, destinationRectangle, _currentAnimation.SourceRectangle, Color.White);
+        spriteBatch.Draw(_texture, destinationRectangle, _currentAnimation.getSourceRectangle(), Color.White);
     }
 
     private const int FrameWidth = 48;
