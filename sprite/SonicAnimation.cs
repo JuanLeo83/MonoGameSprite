@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,7 +11,7 @@ public class SonicAnimation {
 
     private readonly ComposedAnimation _idle = new(2);
     private readonly ComposedAnimation _lookUp = new();
-    private readonly Animation _lookDown = new(false);
+    private TransitionAnimation _lookDown;
 
     private IAnimation _currentAnimation;
 
@@ -86,8 +85,15 @@ public class SonicAnimation {
     }
 
     private void initLookDown() {
-        _lookDown.addFrame(setRectangle(18, 1), 5);
-        _lookDown.addFrame(setRectangle(19, 1), 5);
+        Animation lookDown = new(false);
+        lookDown.addFrame(setRectangle(18, 1), 5);
+        lookDown.addFrame(setRectangle(19, 1), 5);
+        _lookDown = new TransitionAnimation(lookDown, _idle);
+        _lookDown.OnAnimationFinished += lookDown_OnAnimationFinished;
+    }
+
+    private void lookDown_OnAnimationFinished(IAnimation nextAnimation) {
+        playAnimation(nextAnimation);
     }
 
     public void loadContent(ContentManager contentManager) {
@@ -104,22 +110,12 @@ public class SonicAnimation {
         _currentAnimation.reset();
     }
 
-    public void playIdle() {
-        try {
-            if (_currentAnimation == _lookUp || (_currentAnimation == _lookDown && !_currentAnimation.hasFinished())) {
-                playAnimation(_lookDown);
-            }
-            else {
-                playAnimation(_idle);
-            }
-        }
-        catch (Exception e) {
-            Debug.WriteLine(e);
-        }
-    }
-
     public void playLookUp() {
         playAnimation(_lookUp);
+    }
+
+    public void playLookDown() {
+        playAnimation(_lookDown);
     }
 
     private void playAnimation(IAnimation animation) {
@@ -131,6 +127,7 @@ public class SonicAnimation {
     }
 
     public void update() {
+        Debug.WriteLine(_currentAnimation);
         _currentAnimation.update();
     }
 

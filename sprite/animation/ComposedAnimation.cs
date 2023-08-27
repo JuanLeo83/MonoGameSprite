@@ -7,12 +7,13 @@ namespace MonoGameSprite.sprite.animation;
 public class ComposedAnimation : IAnimation {
     private readonly List<Animation> _animations = new();
     private int _currentAnimation;
-    private int _loopTimes;
+    private readonly int _loopTimes;
     private int _repeatLoopCounter;
-    
-    public Animation CurrentAnimation { get; private set; }
 
-    public bool HasFinished => _loopTimes > 0 && _repeatLoopCounter >= _loopTimes;
+    private Animation CurrentAnimation { get; set; }
+
+    public bool HasFinished => (_loopTimes > 0 && _repeatLoopCounter >= _loopTimes) || 
+                               (_loopTimes == 0 && CurrentAnimation == _animations.Last() && CurrentAnimation.HasFinished);
 
     public ComposedAnimation(int loopTimes = 0) {
         _loopTimes = loopTimes;
@@ -41,15 +42,12 @@ public class ComposedAnimation : IAnimation {
         
         CurrentAnimation.update();
 
-        if (CurrentAnimation.HasFinished) {
+        if (CurrentAnimation.HasFinished && !HasFinished) {
             changeToNextAnimation();
         }
     }
 
-    public bool hasFinished() {
-        return CurrentAnimation == _animations.Last() &&
-               CurrentAnimation.HasFinished;
-    }
+    public bool hasFinished() => HasFinished;
 
     public void reset() {
         CurrentAnimation.reset();

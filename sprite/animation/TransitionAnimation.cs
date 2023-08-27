@@ -3,24 +3,29 @@
 namespace MonoGameSprite.sprite.animation; 
 
 public class TransitionAnimation : IAnimation {
-    private IAnimation _from;
-    private IAnimation _to;
+    private readonly IAnimation _to;
+    private readonly IAnimation _animation;
 
-    private Animation _animation;
+    public event NotifyNextAnimation OnAnimationFinished;
+
+    public TransitionAnimation(IAnimation animation, IAnimation to) {
+        _animation = animation;
+        _to = to;
+    }
     
     public void reset() {
-        
+        _animation.reset();
     }
 
     public void update() {
-        throw new System.NotImplementedException();
+        _animation.update();
+        if (!hasFinished()) return;
+        
+        OnAnimationFinished?.Invoke(_to);
+        reset();
     }
 
-    public bool hasFinished() {
-        throw new System.NotImplementedException();
-    }
+    public bool hasFinished() => _animation.hasFinished();
 
-    public Rectangle getSourceRectangle() {
-        throw new System.NotImplementedException();
-    }
+    public Rectangle getSourceRectangle() => _animation.getSourceRectangle();
 }

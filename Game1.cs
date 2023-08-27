@@ -12,6 +12,8 @@ public class Game1 : Game {
     private SonicAnimation _sonicAnimation;
     private Rectangle _destinationRectangle;
 
+    private KeyboardState _lastKeyboardState;
+
     public Game1() {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
@@ -44,13 +46,19 @@ public class Game1 : Game {
             _sonicAnimation.playLookUp();
         }
 
-        if (Keyboard.GetState().IsKeyUp(Keys.Up)) {
-            _sonicAnimation.playIdle();
+        if (isKeyJustReleased(Keys.Up)) {
+            _sonicAnimation.playLookDown();
         }
 
         _sonicAnimation.update();
 
+        _lastKeyboardState = Keyboard.GetState();
+
         base.Update(gameTime);
+    }
+
+    private bool isKeyJustReleased(Keys key) {
+        return _lastKeyboardState.IsKeyDown(key) && Keyboard.GetState().IsKeyUp(key) ;
     }
 
     protected override void Draw(GameTime gameTime) {

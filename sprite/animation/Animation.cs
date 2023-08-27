@@ -53,7 +53,7 @@ public class Animation : IAnimation {
     }
 
     public void addFrame(Rectangle sourceRectangle, int lifespan) {
-        _frames.Add(new AnimationFrame(sourceRectangle, lifespan));
+        addFrame(new AnimationFrame(sourceRectangle, lifespan));
     }
 
     public void addFrame(AnimationFrame animationFrame) {
