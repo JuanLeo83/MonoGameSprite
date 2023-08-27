@@ -21,7 +21,7 @@ public class Game1 : Game {
     }
 
     protected override void Initialize() {
-        _sonicAnimation = new SonicAnimation();
+        _sonicAnimation = new SonicAnimation(GraphicsDevice);
         _destinationRectangle = new Rectangle(100, 100, 48 * 4, 48 * 4);
 
         base.Initialize();
@@ -29,7 +29,7 @@ public class Game1 : Game {
 
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        
+
         _sonicAnimation.loadContent(Content);
     }
 
@@ -50,7 +50,19 @@ public class Game1 : Game {
             _sonicAnimation.playLookDown();
         }
 
-        _sonicAnimation.update();
+        if (isKeyJustPressed(Keys.Left)) {
+            _sonicAnimation.lookAtLeft();
+        }
+
+        if (isKeyJustPressed(Keys.Right)) {
+            _sonicAnimation.lookAtRight();
+        }
+
+        _sonicAnimation.update(
+            _destinationRectangle.X,
+            _destinationRectangle.Y,
+            _destinationRectangle.Width,
+            _destinationRectangle.Height);
 
         _lastKeyboardState = Keyboard.GetState();
 
@@ -58,7 +70,11 @@ public class Game1 : Game {
     }
 
     private bool isKeyJustReleased(Keys key) {
-        return _lastKeyboardState.IsKeyDown(key) && Keyboard.GetState().IsKeyUp(key) ;
+        return _lastKeyboardState.IsKeyDown(key) && Keyboard.GetState().IsKeyUp(key);
+    }
+
+    private bool isKeyJustPressed(Keys key) {
+        return _lastKeyboardState.IsKeyUp(key) && Keyboard.GetState().IsKeyDown(key);
     }
 
     protected override void Draw(GameTime gameTime) {

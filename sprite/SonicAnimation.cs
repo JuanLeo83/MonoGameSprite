@@ -7,6 +7,10 @@ using MonoGameSprite.sprite.animation;
 namespace MonoGameSprite.sprite;
 
 public class SonicAnimation {
+    private const int FrameWidth = 48;
+    private const int FrameHeight = 48;
+    
+    private readonly BoundRectangle _boundRectangle;
     private Texture2D _texture;
 
     private readonly ComposedAnimation _idle = new(2);
@@ -14,6 +18,11 @@ public class SonicAnimation {
     private TransitionAnimation _lookDown;
 
     private IAnimation _currentAnimation;
+    private SpriteEffects _orientation;
+
+    public SonicAnimation(GraphicsDevice graphicsDevice = null) {
+        _boundRectangle = new BoundRectangle(graphicsDevice);
+    }
 
     private void initIdleAnimation() {
         Animation idleAnimation = new(false);
@@ -118,6 +127,14 @@ public class SonicAnimation {
         playAnimation(_lookDown);
     }
 
+    public void lookAtRight() {
+        _orientation = SpriteEffects.None;
+    }
+
+    public void lookAtLeft() {
+        _orientation = SpriteEffects.FlipHorizontally;
+    }
+
     private void playAnimation(IAnimation animation) {
         if (_currentAnimation != null && _currentAnimation != animation) {
             _currentAnimation.reset();
@@ -126,17 +143,18 @@ public class SonicAnimation {
         _currentAnimation = animation;
     }
 
-    public void update() {
+    public void update(int posX, int posY, int width, int height) {
         Debug.WriteLine(_currentAnimation);
         _currentAnimation.update();
+        _boundRectangle.update(posX + (int)(width * 0.25f), posY, (int)(width * 0.5f), height);
     }
 
     public void draw(SpriteBatch spriteBatch, Rectangle destinationRectangle) {
-        spriteBatch.Draw(_texture, destinationRectangle, _currentAnimation.getSourceRectangle(), Color.White);
+        spriteBatch.Draw(_texture, destinationRectangle, _currentAnimation.getSourceRectangle(), Color.White, 0f,
+            Vector2.Zero, _orientation, 0f);
+        
+        _boundRectangle.draw(spriteBatch);
     }
-
-    private const int FrameWidth = 48;
-    private const int FrameHeight = 48;
 
     private Rectangle setRectangle(int coordX, int coordY) {
         return new Rectangle(coordX * FrameWidth, coordY * FrameHeight, FrameWidth, FrameHeight);
