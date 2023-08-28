@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameSprite.sprite.animation;
@@ -144,7 +143,6 @@ public class SonicAnimation {
     }
 
     public void update(int posX, int posY, int width, int height) {
-        Debug.WriteLine(_currentAnimation);
         _currentAnimation.update();
         _boundRectangle.update(posX + (int)(width * 0.25f), posY, (int)(width * 0.5f), height);
     }
